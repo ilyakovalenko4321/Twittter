@@ -32,6 +32,24 @@ services:
     volumes:
       - redis_data:/data
 
+  auth-service:
+    build:
+      context: ./AuthService
+    env_file:
+      - .env-docker
+    container_name: auth-service
+    ports:
+      - "8000:8000"
+
+  user-service:
+    build:
+      context: ./User_Service
+    env_file:
+      - .env-docker
+    container_name: user-service
+    ports:
+      - "8001:8001"
+
 volumes:
   pg_data:
   redis_data:
