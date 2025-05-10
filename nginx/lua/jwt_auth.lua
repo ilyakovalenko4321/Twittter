@@ -1,19 +1,30 @@
+-- 1. Получаем заголовок Authorization
 local auth_header = ngx.var.http_Authorization
-
 if not auth_header or auth_header == "" then
     ngx.status = ngx.HTTP_UNAUTHORIZED
-    ngx.say("401 Unauthorized: no header Authorization present")
+    ngx.say("401 Unauthorized: no Authorization header present")
     return ngx.exit(ngx.HTTP_UNAUTHORIZED)
 end
 
-local res = ngx.location.capture("/internal_auth", {
-    method = ngx.HTTP_GET,
+-- 2. Читаем тело оригинального запроса (JSON)
+ngx.req.read_body()
+local orig_body = ngx.req.get_body_data() or ""
+
+-- 3. Формируем target URL с query‑параметром token
+--    Экранируем токен, чтобы избежать проблем с URL‑спецсимволами
+local token_escaped = ngx.escape_uri(auth_header)
+local internal_path = "/internal_auth?token=" .. token_escaped
+
+-- 4. Запускаем subrequest: POST на internal_path, передаём тело и заголовок Content-Type
+local res = ngx.location.capture(internal_path, {
+    method  = ngx.HTTP_POST,
+    body    = orig_body,
     headers = {
-        Authorization = auth_header,
-        ["Content-Type"] = "application/json"
-    }
+        ["Content-Type"] = "application/json",
+    },
 })
 
+-- 5. Обрабатываем возможный провал subrequest’а
 if not res then
     ngx.log(ngx.ERR, "Auth subrequest failed")
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
@@ -21,8 +32,10 @@ if not res then
     return ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-if res.status ~= 200 then
+-- 6. Проверяем статус валидации
+if res.status ~= ngx.HTTP_OK then
     ngx.status = ngx.HTTP_UNAUTHORIZED
     ngx.say("401 Unauthorized: токен не валиден или истёк")
     return ngx.exit(ngx.HTTP_UNAUTHORIZED)
 end
+
