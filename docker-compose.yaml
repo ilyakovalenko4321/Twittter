@@ -1,0 +1,37 @@
+services:
+  nginx:
+    image: openresty/openresty:alpine
+    environment:
+      - USERS_SERVICE=${USERS_SERVICE}
+      - TWIT_SERVICE=${TWIT_SERVICE}
+      - GRAPH_SERVICE=${GRAPH_SERVICE}
+      - PUBLIC_SERVICE=${PUBLIC_SERVICE}
+      - AUTH_HOST=${AUTH_SERVICE}
+    volumes:
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/lua:/usr/local/openresty/nginx/lua:ro
+    ports:
+      - "8080:80"
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Rts28022007
+      - POSTGRES_DB=twitter
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  pg_data:
+  redis_data:

@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: AuthService
+
+  config:
+    import: optional:file:../.env[.properties]
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+server:
+  port: 8000
+
+configuration:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    issuer: ${JWT_ISSUER}
+    access-token-expiration-time: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME}
+    refresh-token-expiration-time: ${JWT_REFRESH_TOKEN_EXPIRATION_TIME}
+    time-units: ${JWT_TIME_UNITS}
