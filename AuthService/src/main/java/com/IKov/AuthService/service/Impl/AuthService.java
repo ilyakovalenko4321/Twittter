@@ -35,6 +35,9 @@ public class AuthService {
 
 
     public boolean validate(String token, String expectedTag) {
+
+        token = token.substring(7);
+
         Claims claims = parseAndValidateSignature(token).orElse(null);
         if (claims == null) {
             return false;
