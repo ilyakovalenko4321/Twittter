@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: TwittService
+
+  cassandra:
+    contact-points: ${CASSANDRA_CONTACT_POINT}
+    port: ${CASSANDRA_PORT}
+    keyspace-name: ${CASSANDRA_KEY_SPACE}
+    local-datacenter: ${CASSANDRA_LOCAL_DATACENTER}
+    schema-action: create_if_not_exists
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    user-topic: ${KAFKA_USER_TOPIC}
+    index-topic: ${KAFKA_INDEX_TOPIC}
+
+server:
+  port: 8084
