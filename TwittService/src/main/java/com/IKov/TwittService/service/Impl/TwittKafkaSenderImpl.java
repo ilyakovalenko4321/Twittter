@@ -1,7 +1,7 @@
 package com.IKov.TwittService.service.Impl;
 
 
-import com.IKov.TwittService.service.KafkaSender;
+import com.IKov.TwittService.service.TwittKafkaSender;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class KafkaSenderImpl implements KafkaSender {
+public class TwittKafkaSenderImpl implements TwittKafkaSender {
 
     private final reactor.kafka.sender.KafkaSender<String, Object> kafkaSender;
 

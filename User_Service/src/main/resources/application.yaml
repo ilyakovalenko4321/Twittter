@@ -3,7 +3,7 @@ spring:
     name: User_Service
 
   config:
-    import: optional:file:../.env[.properties]
+    import: optional:file:../.env-docker[.properties]
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}

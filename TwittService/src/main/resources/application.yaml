@@ -15,4 +15,4 @@ spring:
     index-topic: ${KAFKA_INDEX_TOPIC}
 
 server:
-  port: 8084
+  port: 8002
