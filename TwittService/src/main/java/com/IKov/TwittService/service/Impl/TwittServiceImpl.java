@@ -3,13 +3,12 @@ package com.IKov.TwittService.service.Impl;
 
 import com.IKov.TwittService.entity.TwittPost;
 import com.IKov.TwittService.repository.TwittRepository;
-import com.IKov.TwittService.service.KafkaSender;
+import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +22,7 @@ public class TwittServiceImpl implements TwittService {
     private String indexTopicName;
 
     private final TwittRepository twittRepository;
-    private final KafkaSender kafkaSender;
+    private final TwittKafkaSender kafkaSender;
 
 
     @Override
