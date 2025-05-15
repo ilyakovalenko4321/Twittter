@@ -17,10 +17,7 @@ public class TwittPostMapper {
         entity.setUserTag(dto.getUserTag());
         entity.setTwittId(UUID.randomUUID());
         entity.setTwittText(dto.getTwittText());
-        String tags = dto.getTwittTags() != null
-                ? Arrays.stream(dto.getTwittTags()).collect(Collectors.joining(","))
-                : "";
-        entity.setTwittTags(tags);
+        entity.setTwittTags(dto.getTwittTags());
         entity.setCreatedAt(LocalDateTime.now());
         return entity;
     }
@@ -28,10 +25,7 @@ public class TwittPostMapper {
     public TwittPostDto toDto(TwittPost entity) {
         TwittPostDto dto = new TwittPostDto();
         dto.setTwittText(entity.getTwittText());
-        String[] tags = entity.getTwittTags() != null && !entity.getTwittTags().isEmpty()
-                ? entity.getTwittTags().split(",")
-                : new String[0];
-        dto.setTwittTags(tags);
+        dto.setTwittTags(entity.getTwittTags());
         return dto;
     }
 }

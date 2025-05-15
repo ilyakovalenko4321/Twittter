@@ -6,6 +6,7 @@ import com.IKov.TwittService.repository.TwittRepository;
 import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TwittServiceImpl implements TwittService {
 
     @Value("${spring.kafka.user-topic}")
@@ -28,16 +30,32 @@ public class TwittServiceImpl implements TwittService {
     @Override
     public boolean postTwitt(TwittPost twittPost) {
 
-        twittRepository.save(twittPost);
-        kafkaSender.send(userTopicName, Map.of(twittPost.getUserTag(), twittPost.getTwittId())).subscribe();
+        log.info("Posting new twitt: {}", twittPost);
+
+        try {
+            twittRepository.save(twittPost);
+            log.info("Twitt saved to Cassandra: twittId={}, createdAt={}", twittPost.getTwittId(), twittPost.getCreatedAt());
+        } catch (Exception e) {
+            log.error("Failed to save Twitt to Cassandra", e);
+            return false;
+        }
+        kafkaSender.send(userTopicName, Map.of(twittPost.getUserTag(), twittPost.getTwittId()))
+                .doOnSubscribe(s -> log.info("Sending to Kafka user topic: {} -> {}", twittPost.getUserTag(), twittPost.getTwittId()))
+                .doOnSuccess(v -> log.info("Successfully sent to Kafka user topic"))
+                .doOnError(e -> log.error("Failed to send to Kafka user topic", e))
+                .subscribe();
 
         Map<String, Object> indexSendMap = new HashMap<>();
         indexSendMap.put("twittId", twittPost.getTwittId());
         indexSendMap.put("twittText", twittPost.getTwittText());
         indexSendMap.put("twittTags", twittPost.getTwittTags());
 
-        kafkaSender.send(indexTopicName, indexSendMap).subscribe();
+        kafkaSender.send(indexTopicName, indexSendMap)
+                .doOnSubscribe(s -> log.info("Sending to Kafka index topic: {}", indexSendMap))
+                .doOnSuccess(v -> log.info("Successfully sent to Kafka index topic"))
+                .doOnError(e -> log.error("Failed to send to Kafka index topic", e))
+                .subscribe();
 
-        return false;
+        return true;
     }
 }
