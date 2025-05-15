@@ -2,12 +2,18 @@ package com.IKov.TwittService.service.Impl;
 
 
 import com.IKov.TwittService.entity.TwittPost;
+import com.IKov.TwittService.entity.exceptions.CassandraException;
+import com.IKov.TwittService.entity.exceptions.RedisException;
 import com.IKov.TwittService.repository.TwittRepository;
 import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -25,20 +31,33 @@ public class TwittServiceImpl implements TwittService {
 
     private final TwittRepository twittRepository;
     private final TwittKafkaSender kafkaSender;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @Override
+    @Retryable(
+            retryFor = Exception.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public boolean postTwitt(TwittPost twittPost) {
 
         log.info("Posting new twitt: {}", twittPost);
-
         try {
             twittRepository.save(twittPost);
             log.info("Twitt saved to Cassandra: twittId={}, createdAt={}", twittPost.getTwittId(), twittPost.getCreatedAt());
         } catch (Exception e) {
             log.error("Failed to save Twitt to Cassandra", e);
-            return false;
+            throw new CassandraException("Error while saving in Cassandra");
         }
+
+        try{
+            redisTemplate.opsForValue().set(String.valueOf(twittPost.getTwittId()), "1");
+        }catch (Exception e){
+            log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittPost.getTwittId());
+            throw new RedisException("Error while saving in Redis");
+        }
+
         kafkaSender.send(userTopicName, Map.of(twittPost.getUserTag(), twittPost.getTwittId()))
                 .doOnSubscribe(s -> log.info("Sending to Kafka user topic: {} -> {}", twittPost.getUserTag(), twittPost.getTwittId()))
                 .doOnSuccess(v -> log.info("Successfully sent to Kafka user topic"))
@@ -57,5 +76,11 @@ public class TwittServiceImpl implements TwittService {
                 .subscribe();
 
         return true;
+    }
+
+    @Recover
+    public boolean recover(Exception e, TwittPost twittPost){
+        log.error("Attempts to post twitt with tag={} are over", twittPost.getTwittHeader());
+        return false;
     }
 }
