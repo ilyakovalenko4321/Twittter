@@ -1,12 +1,12 @@
-CREATE KEYSPACE tweet_service
+CREATE KEYSPACE twitt_service
     WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'};
 
-USE tweet_service;
+USE twitt_service;
 
-CREATE TABLE tweets (
+CREATE TABLE twitts (
                         user_id UUID,
                         created_at TIMESTAMP,
-                        tweet_id UUID,
+                        twitt_id UUID,
                         text TEXT,
                         media_urls LIST<TEXT>,
                         metadata MAP<TEXT, TEXT>,
