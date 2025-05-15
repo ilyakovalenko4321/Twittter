@@ -14,5 +14,11 @@ spring:
     user-topic: ${KAFKA_USER_TOPIC}
     index-topic: ${KAFKA_INDEX_TOPIC}
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+
 server:
   port: 8002

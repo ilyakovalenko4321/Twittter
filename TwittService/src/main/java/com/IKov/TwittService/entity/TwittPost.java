@@ -23,6 +23,8 @@ public class TwittPost {
     private UUID twittId;
     @Column("twitt_text")
     private String twittText;
+    @Column("twitt_header")
+    private String twittHeader;
     @Column("twitt_tags")
     private List<String> twittTags;
     @Column("created_at")
