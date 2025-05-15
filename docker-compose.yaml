@@ -58,10 +58,10 @@ services:
       - "9092:9092"
 
   cassandra:
-    image: cassandra:4.1
+    build:
+      context: ./cassandra-custom
+    image: cassandra-custom:4.1
     container_name: cassandra
-    env_file:
-      - ./.env-docker
     environment:
       CASSANDRA_CLUSTER_NAME: "TwitterCluster"
       CASSANDRA_DC: datacenter1
@@ -74,9 +74,8 @@ services:
       - "7199:7199"
       - "9160:9160"
     volumes:
-      - ./db-init/cassandra:/var/lib/cassandra
-
-
+      # монтируем вашу папку со скриптами
+      - ./db-init/cassandra:/docker-entrypoint-initdb.d:ro
 
   auth-service:
     build:
