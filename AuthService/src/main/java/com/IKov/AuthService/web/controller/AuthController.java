@@ -6,6 +6,7 @@ import com.IKov.AuthService.service.Impl.AuthService;
 import com.IKov.AuthService.service.Impl.JwtServiceImpl;
 import com.IKov.AuthService.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -37,6 +39,7 @@ public class AuthController {
             return ResponseEntity.ok().build();
         }else{
             jwtService.logout(token, "");
+            log.info("Error in parsing token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("access validation failed");
         }
