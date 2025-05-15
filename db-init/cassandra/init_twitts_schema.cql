@@ -5,6 +5,7 @@ USE twitt_service;
 
 CREATE TABLE twitts (
                         created_at TIMESTAMP,
+                        twitt_header TEXT,
                         twitt_id UUID,
                         twitt_text TEXT,
                         twitt_tags LIST<TEXT>,
