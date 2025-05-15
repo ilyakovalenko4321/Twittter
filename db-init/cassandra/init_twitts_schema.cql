@@ -4,11 +4,9 @@ CREATE KEYSPACE twitt_service
 USE twitt_service;
 
 CREATE TABLE twitts (
-                        user_id UUID,
                         created_at TIMESTAMP,
                         twitt_id UUID,
-                        text TEXT,
-                        media_urls LIST<TEXT>,
-                        metadata MAP<TEXT, TEXT>,
-                        PRIMARY KEY ((user_id), created_at)
-) WITH default_time_to_live = 604800; -- 7 дней
+                        twitt_text TEXT,
+                        twitt_tags LIST<TEXT>,
+                        PRIMARY KEY (twitt_id)
+);
