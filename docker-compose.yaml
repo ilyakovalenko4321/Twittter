@@ -111,6 +111,16 @@ services:
       - cassandra
     ports:
       - "8002:8002"
+  timeline-service:
+    build:
+      context: ./TimelineService
+    env_file:
+      - .env-docker
+    container_name: timeline-service
+    depends_on:
+      - twitt-service
+    ports:
+      - "8010:8010"
 
 
 volumes:
