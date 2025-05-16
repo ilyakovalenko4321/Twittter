@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "com.IKov.TimelineService";
+option java_outer_classname = "GetTwittsProto";
+
+service GetTwitts{
+  rpc GetTwitts (GetTwittRequest) returns (GetTwittReply);
+}
+
+message GetTwittRequest{
+  int32 twittsNumber = 1;
+}
+
+message GetTwittReply{
+  repeated Twitt twitt = 1;
+}
+
+message Twitt{
+  string userTag = 1;
+  string twittText = 3;
+  string twittHeader = 4;
+  repeated string twittTags = 5;
+  google.protobuf.Timestamp createdAt = 6;
+}

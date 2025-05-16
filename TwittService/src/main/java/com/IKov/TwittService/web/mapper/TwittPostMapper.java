@@ -16,6 +16,7 @@ public class TwittPostMapper {
         TwittPost entity = new TwittPost();
         entity.setUserTag(dto.getUserTag());
         entity.setTwittId(UUID.randomUUID());
+        entity.setTwittHeader(dto.getTwittHeader());
         entity.setTwittText(dto.getTwittText());
         entity.setTwittTags(dto.getTwittTags());
         entity.setCreatedAt(LocalDateTime.now());

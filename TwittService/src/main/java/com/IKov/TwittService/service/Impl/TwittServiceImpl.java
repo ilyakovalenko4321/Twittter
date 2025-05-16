@@ -9,15 +9,17 @@ import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,10 @@ public class TwittServiceImpl implements TwittService {
     private String userTopicName;
     @Value("${spring.kafka.index-topic}")
     private String indexTopicName;
+    @Value("${configs.redis.randomly-recommended-days}")
+    private Integer randomlyRecommendedDays;
+    @Value("${configs.redis.random-twitt-prefix}")
+    private String randomTwittPrefix;
 
     private final TwittRepository twittRepository;
     private final TwittKafkaSender kafkaSender;
@@ -52,7 +58,7 @@ public class TwittServiceImpl implements TwittService {
         }
 
         try{
-            redisTemplate.opsForValue().set(String.valueOf(twittPost.getTwittId()), "1");
+            redisTemplate.opsForValue().set(String.valueOf(randomTwittPrefix + ":" +twittPost.getTwittId()), "1", Duration.ofDays(randomlyRecommendedDays));
         }catch (Exception e){
             log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittPost.getTwittId());
             throw new RedisException("Error while saving in Redis");
@@ -82,5 +88,25 @@ public class TwittServiceImpl implements TwittService {
     public boolean recover(Exception e, TwittPost twittPost){
         log.error("Attempts to post twitt with tag={} are over", twittPost.getTwittHeader());
         return false;
+    }
+
+    @Override
+    public List<TwittPost> formRandomTwittStack(Integer n) {
+        List<UUID> candidateKeys = new ArrayList<>();
+        ScanOptions scanOptions = ScanOptions.scanOptions().match(randomTwittPrefix+"*").count(1000).build();
+
+        try(Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions)){
+            while (cursor.hasNext()){
+                String keyExtended = new String(cursor.next());
+                String key = keyExtended.substring(keyExtended.indexOf(":") + 1);
+                candidateKeys.add(UUID.fromString(key));
+                if (candidateKeys.size() >= n) break; // буфер в 5x от нужного
+            }
+        } catch (Exception e){
+            log.error("Exception while selecting random twitt stack");
+            throw new RedisException("Exception while selecting random twitt stack");
+        }
+
+        return twittRepository.findAllByTwittIdIn(candidateKeys);
     }
 }

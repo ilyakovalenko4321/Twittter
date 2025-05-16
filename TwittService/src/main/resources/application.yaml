@@ -19,6 +19,14 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
+configs:
+  redis:
+    randomly-recommended-days: ${CONFIGURATION_REDIS_RANDOMLY_RECOMMENDED_TIME}
+    random-twitt-prefix: ${CONFIGURATION_REDIS_RANDOMLY_UUID_PREFIX}
 
 server:
   port: 8002
+
+grpc:
+  server:
+    port: 8003
