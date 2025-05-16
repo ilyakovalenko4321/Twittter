@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: TimelineService
+
+grpc:
+  client:
+    myGrpcService:
+      address: twitt-service:8003
+      negotiation-type: plaintext
+
+server:
+  port: 8010
+
+config:
+  grpc:
+    random-twitts-number: ${CONFIGURATION_RANDOM_TWITT_NUMBER}
