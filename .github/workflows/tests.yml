@@ -1,5 +1,9 @@
 name: Java
 
+permissions:
+  contents: read           # чтобы actions могли читать репозиторий
+  checks: write            # чтобы test-reporter мог создавать Check Runs
+
 on:
   push:
   workflow_dispatch:
