@@ -29,5 +29,4 @@ public class TwittKafkaSenderImpl implements TwittKafkaSender {
                 .then();
     }
 
-
 }

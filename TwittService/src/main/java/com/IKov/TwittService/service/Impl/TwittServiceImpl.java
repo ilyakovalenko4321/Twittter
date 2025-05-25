@@ -92,21 +92,46 @@ public class TwittServiceImpl implements TwittService {
 
     @Override
     public List<TwittPost> formRandomTwittStack(Integer n) {
-        List<UUID> candidateKeys = new ArrayList<>();
-        ScanOptions scanOptions = ScanOptions.scanOptions().match(randomTwittPrefix+"*").count(1000).build();
+        log.info("Начало формирования случайного стека твитов. Требуется: {}", n);
 
-        try(Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions)){
-            while (cursor.hasNext()){
+        List<UUID> candidateKeys = new ArrayList<>();
+        ScanOptions scanOptions = ScanOptions.scanOptions()
+                .match(randomTwittPrefix + "*")
+                .count(1000)
+                .build();
+
+        try (Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions)) {
+            while (cursor.hasNext()) {
                 String keyExtended = new String(cursor.next());
                 String key = keyExtended.substring(keyExtended.indexOf(":") + 1);
-                candidateKeys.add(UUID.fromString(key));
-                if (candidateKeys.size() >= n) break; // буфер в 5x от нужного
+
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    candidateKeys.add(uuid);
+                } catch (IllegalArgumentException ex) {
+                    log.warn("Не удалось преобразовать ключ '{}' в UUID", key);
+                    continue;
+                }
+
+                if (candidateKeys.size() >= n) break;
             }
-        } catch (Exception e){
-            log.error("Exception while selecting random twitt stack");
-            throw new RedisException("Exception while selecting random twitt stack");
+
+            log.info("Найдено {} подходящих ключей для твитов", candidateKeys.size());
+            if (candidateKeys.isEmpty()) {
+                log.warn("Список ключей для выборки твитов пуст. Вероятно, Redis не содержит подходящих записей.");
+            } else {
+                log.debug("Первые ключи для выборки: {}", candidateKeys.stream().limit(5).toList());
+            }
+
+        } catch (Exception e) {
+            log.error("Ошибка при сканировании Redis для выбора твитов: {}", e.getMessage(), e);
+            throw new RedisException("Ошибка при сканировании Redis");
         }
 
-        return twittRepository.findAllByTwittIdIn(candidateKeys);
+        List<TwittPost> result = twittRepository.findAllByTwittIdIn(candidateKeys);
+        log.info("Извлечено {} твитов из twittRepository", result.size());
+
+        return result;
     }
+
 }
