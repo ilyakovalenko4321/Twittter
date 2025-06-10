@@ -24,6 +24,24 @@ public class Profile {
 
     @ElementCollection
     @CollectionTable(
+            name = "profile_subscribers",
+            joinColumns = @JoinColumn(name = "profile_id")
+    )
+    @Column(name = "subscriber_id")
+    @BatchSize(size = 20)
+    private List<String> subscriberList;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "subscribition_profiles",
+            joinColumns = @JoinColumn(name = "profile_id")
+    )
+    @Column(name = "subscribition_id")
+    @BatchSize(size = 20)
+    private List<String> subscribitionList;
+
+    @ElementCollection
+    @CollectionTable(
             name = "profile_twitt",
             joinColumns = @JoinColumn(name = "profile_id")
     )
