@@ -10,6 +10,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +22,13 @@ public class GrpcClientServiceImpl implements GrpcClientService {
 
     @Value("${config.grpc.random-twitts-number}")
     private Integer randomTwittsNumber;
+
+    @Override
+    public List<TwittPost> formTimeline() {
+        List<TwittPost> twittPosts = new ArrayList<>();
+        twittPosts.addAll(getRandomTwitts());
+        return twittPosts;
+    }
 
     @Override
     public List<TwittPost> getRandomTwitts() {
@@ -46,7 +54,5 @@ public class GrpcClientServiceImpl implements GrpcClientService {
 
         return twittPostList;
     }
-
-
 
 }

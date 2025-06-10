@@ -18,7 +18,7 @@ public class TimelineController {
 
     @GetMapping("form")
     public List<TwittPost> formTimeline(){
-        return grpcClientService.getRandomTwitts();
+        return grpcClientService.formTimeline();
     }
 
 }

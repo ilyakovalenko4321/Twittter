@@ -8,8 +8,8 @@ services:
       - PUBLIC_SERVICE=${PUBLIC_SERVICE}
       - AUTH_HOST=${AUTH_SERVICE}
     volumes:
-      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
-      - ./nginx/lua:/usr/local/openresty/nginx/lua:ro
+      - ./utils/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./utils/nginx/lua:/usr/local/openresty/nginx/lua:ro
     ports:
       - "8080:80"
   postgres:
@@ -20,7 +20,7 @@ services:
       - POSTGRES_DB=twitter
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./db-init/postgres:/docker-entrypoint-initdb.d:ro
+      - ./utils/db-init/postgres:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
   redis:
@@ -57,7 +57,7 @@ services:
       - "9092:9092"
   cassandra:
     build:
-      context: ./cassandra-custom
+      context: utils/cassandra-custom
     image: cassandra-custom:4.1
     container_name: cassandra
     environment:
@@ -74,7 +74,7 @@ services:
     volumes:
       # монтируем вашу папку со скриптами
       - cassandra_data:/var/lib/cassandra
-      - ./db-init/cassandra:/docker-entrypoint-initdb.d:ro
+      - ./utils/db-init/cassandra:/docker-entrypoint-initdb.d:ro
 
 
   auth-service:
