@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface GrpcClientService {
 
+    List<TwittPost> formTimeline();
+
     List<TwittPost> getRandomTwitts();
 
 }
