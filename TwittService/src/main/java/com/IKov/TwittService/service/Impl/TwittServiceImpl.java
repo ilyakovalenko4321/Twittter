@@ -7,6 +7,7 @@ import com.IKov.TwittService.entity.exceptions.RedisException;
 import com.IKov.TwittService.repository.CassandraTwittRepository;
 import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
+import jnr.ffi.annotations.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.Cursor;
@@ -19,6 +20,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -32,8 +34,12 @@ public class TwittServiceImpl implements TwittService {
     private String indexTopicName;
     @Value("${configs.redis.randomly-recommended-days}")
     private Integer randomlyRecommendedDays;
+    @Value("${trend-recommended-days}")
+    private Integer trendRecommendedDays;
     @Value("${configs.redis.random-twitt-prefix}")
     private String randomTwittPrefix;
+    @Value("${configs.redis.trend-twitt-prefix}")
+    private String trendTwittPrefix;
 
     private final CassandraTwittRepository cassandraTwittRepository;
     private final TwittKafkaSender kafkaSender;
@@ -61,6 +67,19 @@ public class TwittServiceImpl implements TwittService {
             redisTemplate.opsForValue().set(String.valueOf(randomTwittPrefix + ":" + twittEntity.getTwittId()), "1", Duration.ofDays(randomlyRecommendedDays));
         }catch (Exception e){
             log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittEntity.getTwittId());
+            throw new RedisException("Error while saving in Redis");
+        }
+
+        try{
+            String key = trendTwittPrefix + ":" + twittEntity.getTwittId();
+
+            Instant now = Instant.now();
+            String timestamp = now.getEpochSecond() + "." + now.getNano();
+            double initialScore = 0.0;
+            redisTemplate.opsForList().rightPushAll(key, timestamp, initialScore);
+            redisTemplate.expire(key, Duration.ofDays(trendRecommendedDays));
+        }catch (Exception e){
+            log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it in trends", twittEntity.getTwittId());
             throw new RedisException("Error while saving in Redis");
         }
 
