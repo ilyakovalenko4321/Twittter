@@ -16,8 +16,7 @@ import java.util.UUID;
 @Data
 @Table("twitts")
 public class TwittPost {
-
-    @Transient
+    @Column("user_tag")
     private String userTag;
     @PrimaryKeyColumn(name = "twitt_id", type = PrimaryKeyType.PARTITIONED)
     private UUID twittId;
