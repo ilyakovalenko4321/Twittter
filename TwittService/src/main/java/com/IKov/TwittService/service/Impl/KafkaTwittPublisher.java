@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class TwittKafkaSenderImpl implements TwittKafkaSender {
+public class KafkaTwittPublisher implements TwittKafkaSender {
 
     private final reactor.kafka.sender.KafkaSender<String, Object> kafkaSender;
 

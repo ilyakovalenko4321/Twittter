@@ -1,10 +1,10 @@
 package com.IKov.TwittService.service.Impl;
 
 
-import com.IKov.TwittService.entity.TwittPost;
+import com.IKov.TwittService.entity.twitt.TwittEntity;
 import com.IKov.TwittService.entity.exceptions.CassandraException;
 import com.IKov.TwittService.entity.exceptions.RedisException;
-import com.IKov.TwittService.repository.TwittRepository;
+import com.IKov.TwittService.repository.CassandraTwittRepository;
 import com.IKov.TwittService.service.TwittKafkaSender;
 import com.IKov.TwittService.service.TwittService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class TwittServiceImpl implements TwittService {
     @Value("${configs.redis.random-twitt-prefix}")
     private String randomTwittPrefix;
 
-    private final TwittRepository twittRepository;
+    private final CassandraTwittRepository cassandraTwittRepository;
     private final TwittKafkaSender kafkaSender;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -46,34 +46,34 @@ public class TwittServiceImpl implements TwittService {
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public boolean postTwitt(TwittPost twittPost) {
+    public boolean postTwitt(TwittEntity twittEntity) {
 
-        log.info("Posting new twitt: {}", twittPost);
+        log.info("Posting new twitt: {}", twittEntity);
         try {
-            twittRepository.save(twittPost);
-            log.info("Twitt saved to Cassandra: twittId={}, createdAt={}", twittPost.getTwittId(), twittPost.getCreatedAt());
+            cassandraTwittRepository.save(twittEntity);
+            log.info("Twitt saved to Cassandra: twittId={}, createdAt={}", twittEntity.getTwittId(), twittEntity.getCreatedAt());
         } catch (Exception e) {
             log.error("Failed to save Twitt to Cassandra", e);
             throw new CassandraException("Error while saving in Cassandra");
         }
 
         try{
-            redisTemplate.opsForValue().set(String.valueOf(randomTwittPrefix + ":" +twittPost.getTwittId()), "1", Duration.ofDays(randomlyRecommendedDays));
+            redisTemplate.opsForValue().set(String.valueOf(randomTwittPrefix + ":" + twittEntity.getTwittId()), "1", Duration.ofDays(randomlyRecommendedDays));
         }catch (Exception e){
-            log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittPost.getTwittId());
+            log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittEntity.getTwittId());
             throw new RedisException("Error while saving in Redis");
         }
 
-        kafkaSender.send(userTopicName, Map.of(twittPost.getUserTag(), twittPost.getTwittId()))
-                .doOnSubscribe(s -> log.info("Sending to Kafka user topic: {} -> {}", twittPost.getUserTag(), twittPost.getTwittId()))
+        kafkaSender.send(userTopicName, Map.of(twittEntity.getUserTag(), twittEntity.getTwittId()))
+                .doOnSubscribe(s -> log.info("Sending to Kafka user topic: {} -> {}", twittEntity.getUserTag(), twittEntity.getTwittId()))
                 .doOnSuccess(v -> log.info("Successfully sent to Kafka user topic"))
                 .doOnError(e -> log.error("Failed to send to Kafka user topic", e))
                 .subscribe();
 
         Map<String, Object> indexSendMap = new HashMap<>();
-        indexSendMap.put("twittId", twittPost.getTwittId());
-        indexSendMap.put("twittText", twittPost.getTwittText());
-        indexSendMap.put("twittTags", twittPost.getTwittTags());
+        indexSendMap.put("twittId", twittEntity.getTwittId());
+        indexSendMap.put("twittText", twittEntity.getTwittText());
+        indexSendMap.put("twittTags", twittEntity.getTwittTags());
 
         kafkaSender.send(indexTopicName, indexSendMap)
                 .doOnSubscribe(s -> log.info("Sending to Kafka index topic: {}", indexSendMap))
@@ -85,13 +85,13 @@ public class TwittServiceImpl implements TwittService {
     }
 
     @Recover
-    public boolean recover(Exception e, TwittPost twittPost){
-        log.error("Attempts to post twitt with tag={} are over", twittPost.getTwittHeader());
+    public boolean recover(Exception e, TwittEntity twittEntity){
+        log.error("Attempts to post twitt with tag={} are over", twittEntity.getTwittHeader());
         return false;
     }
 
     @Override
-    public List<TwittPost> formRandomTwittStack(Integer n) {
+    public List<TwittEntity> formRandomTwittStack(Integer n) {
         log.info("Начало формирования случайного стека твитов. Требуется: {}", n);
 
         List<UUID> candidateKeys = new ArrayList<>();
@@ -128,7 +128,7 @@ public class TwittServiceImpl implements TwittService {
             throw new RedisException("Ошибка при сканировании Redis");
         }
 
-        List<TwittPost> result = twittRepository.findAllByTwittIdIn(candidateKeys);
+        List<TwittEntity> result = cassandraTwittRepository.findAllByTwittIdIn(candidateKeys);
         log.info("Извлечено {} твитов из twittRepository", result.size());
 
         return result;

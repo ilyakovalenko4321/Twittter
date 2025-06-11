@@ -1,9 +1,9 @@
 package com.IKov.TwittService.web.controller;
 
-import com.IKov.TwittService.entity.TwittPost;
+import com.IKov.TwittService.entity.twitt.TwittEntity;
 import com.IKov.TwittService.service.TwittService;
-import com.IKov.TwittService.web.dto.TwittPostDto;
-import com.IKov.TwittService.web.mapper.TwittPostMapper;
+import com.IKov.TwittService.web.dto.TwittCreateRequest;
+import com.IKov.TwittService.web.mapper.TwittDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class TwittController {
 
     private final TwittService twittService;
-    private final TwittPostMapper twittPostMapper;
+    private final TwittDtoMapper twittDtoMapper;
 
     @PostMapping("/post")
-    public ResponseEntity<?> create(@RequestBody TwittPostDto twittPostDto){
-        TwittPost twittPost = twittPostMapper.toEntity(twittPostDto);
-        boolean isSuccessfullySaved = twittService.postTwitt(twittPost);
+    public ResponseEntity<?> create(@RequestBody TwittCreateRequest twittCreateRequest){
+        TwittEntity twittEntity = twittDtoMapper.toEntity(twittCreateRequest);
+        boolean isSuccessfullySaved = twittService.postTwitt(twittEntity);
 
         if(isSuccessfullySaved){
             return ResponseEntity.ok().build();

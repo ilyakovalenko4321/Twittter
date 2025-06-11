@@ -1,14 +1,13 @@
 package com.IKov.TwittService.service;
 
-import com.IKov.TwittService.entity.TwittPost;
-import org.springframework.http.ResponseEntity;
+import com.IKov.TwittService.entity.twitt.TwittEntity;
 
 import java.util.List;
 
 public interface TwittService {
 
-    boolean postTwitt(TwittPost twittPost);
+    boolean postTwitt(TwittEntity twittEntity);
 
-    List<TwittPost> formRandomTwittStack(Integer n);
+    List<TwittEntity> formRandomTwittStack(Integer n);
 
 }
