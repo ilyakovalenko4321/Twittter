@@ -2,7 +2,7 @@ package com.IKov.TimelineService.service.Impl;
 
 import com.IKov.TimelineService.GetTwittsGrpc;
 import com.IKov.TimelineService.GetTwittsProto;
-import com.IKov.TimelineService.entity.TwittPost;
+import com.IKov.TimelineService.entity.twitt.TwittEntity;
 import com.IKov.TimelineService.service.GrpcClientService;
 import com.IKov.TimelineService.web.mapper.TwittPostMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +24,14 @@ public class GrpcClientServiceImpl implements GrpcClientService {
     private Integer randomTwittsNumber;
 
     @Override
-    public List<TwittPost> formTimeline() {
-        List<TwittPost> twittPosts = new ArrayList<>();
-        twittPosts.addAll(getRandomTwitts());
-        return twittPosts;
+    public List<TwittEntity> formTimeline() {
+        List<TwittEntity> twittEntities = new ArrayList<>();
+        twittEntities.addAll(getRandomTwitts());
+        return twittEntities;
     }
 
     @Override
-    public List<TwittPost> getRandomTwitts() {
+    public List<TwittEntity> getRandomTwitts() {
         log.info("Запрос случайных твитов: количество = {}", randomTwittsNumber);
 
         GetTwittsProto.GetTwittRequest request = GetTwittsProto.GetTwittRequest.newBuilder()
@@ -49,10 +49,10 @@ public class GrpcClientServiceImpl implements GrpcClientService {
             throw e;
         }
 
-        List<TwittPost> twittPostList = TwittPostMapper.toDomainList(reply);
-        log.debug("Преобразование в доменные объекты завершено: {}", twittPostList);
+        List<TwittEntity> twittEntityList = TwittPostMapper.toDomainList(reply);
+        log.debug("Преобразование в доменные объекты завершено: {}", twittEntityList);
 
-        return twittPostList;
+        return twittEntityList;
     }
 
 }
