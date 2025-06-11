@@ -1,4 +1,4 @@
-package com.IKov.TwittService.service.Impl;
+package com.IKov.TwittService.service.Impl.kafka;
 
 
 import com.IKov.TwittService.service.TwittKafkaSender;
