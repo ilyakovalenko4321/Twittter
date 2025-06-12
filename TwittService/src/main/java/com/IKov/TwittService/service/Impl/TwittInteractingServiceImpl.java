@@ -35,6 +35,7 @@ public class TwittInteractingServiceImpl implements TwittInteractingService {
         //ToDo: В Graph не забыть сделать список "актуальных людей" - постят с регулярностью больше 1 раза в неделю для поддержания развития новеньких
         //ToDo: Создать gRPC сервер "трендовых" постов
         // Завести scheduling обновление списка трендовых
+        //Переписать хранение трендов на ZSET
 
         String key = trendTwittPrefix + twittInteractingDto.getId();
 
