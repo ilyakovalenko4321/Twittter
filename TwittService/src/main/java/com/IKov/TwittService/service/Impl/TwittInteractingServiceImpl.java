@@ -36,7 +36,7 @@ public class TwittInteractingServiceImpl implements TwittInteractingService {
         //ToDo: Создать gRPC сервер "трендовых" постов
         // Завести scheduling обновление списка трендовых
 
-        String key = trendTwittPrefix + ":" + twittInteractingDto.getId();
+        String key = trendTwittPrefix + twittInteractingDto.getId();
 
         List<Object> trendTwittList = redisTemplate.opsForList().range(key, 0, -1);
 
