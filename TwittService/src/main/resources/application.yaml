@@ -24,6 +24,8 @@ configs:
   redis:
     randomly-recommended-days: ${CONFIGURATION_REDIS_RANDOMLY_RECOMMENDED_TIME}
     random-twitt-prefix: ${CONFIGURATION_REDIS_RANDOMLY_UUID_PREFIX}
+    trend-recommended-days: ${CONFIGURATION_REDIS_TREND_TIME}
+    trend-twitt-prefix: ${CONFIGURATION_REDIS_TREND_PREFIX}
 
 server:
   port: 8002
