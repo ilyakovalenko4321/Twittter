@@ -10,4 +10,6 @@ public interface TwittService {
 
     List<TwittEntity> formRandomTwittStack(Integer n);
 
+    List<TwittEntity> formTrendTwittStack(Integer n);
+
 }

@@ -32,14 +32,14 @@ public class TwittServiceImpl implements TwittService {
     private String userTopicName;
     @Value("${spring.kafka.index-topic}")
     private String indexTopicName;
-    @Value("${configs.redis.randomly-recommended-days}")
-    private Integer randomlyRecommendedDays;
-    @Value("${trend-recommended-days}")
+    @Value("${configs.redis.trend-recommended-days}")
     private Integer trendRecommendedDays;
-    @Value("${configs.redis.random-twitt-prefix}")
-    private String randomTwittPrefix;
     @Value("${configs.redis.trend-twitt-prefix}")
     private String trendTwittPrefix;
+    @Value("${configs.redis.random-key-set-prefix}")
+    private String randomKeySetPrefix;
+    @Value("${configs.redis.trend-key-set-prefix}")
+    private String trendKeySetPrefix;
 
     private final CassandraTwittRepository cassandraTwittRepository;
     private final TwittKafkaSender kafkaSender;
@@ -64,14 +64,13 @@ public class TwittServiceImpl implements TwittService {
         }
 
         try{
-            redisTemplate.opsForValue().set(String.valueOf(randomTwittPrefix + ":" + twittEntity.getTwittId()), "1", Duration.ofDays(randomlyRecommendedDays));
-        }catch (Exception e){
-            log.error("Exception while saving post with UUID={} to Redis. It will be unable to select it randomly", twittEntity.getTwittId());
-            throw new RedisException("Error while saving in Redis");
+            redisTemplate.opsForSet().add(String.valueOf(randomKeySetPrefix), String.valueOf(twittEntity.getTwittId()));
+        } catch (Exception ex){
+            log.error("Exception while saving post uuid into randomKeyPrefix set. It will be impossible to promote it by chance");
         }
 
         try{
-            String key = trendTwittPrefix + ":" + twittEntity.getTwittId();
+            String key = trendTwittPrefix + twittEntity.getTwittId();
 
             Instant now = Instant.now();
             String timestamp = now.getEpochSecond() + "." + now.getNano();
@@ -104,7 +103,7 @@ public class TwittServiceImpl implements TwittService {
     }
 
     @Recover
-    public boolean recover(Exception e, TwittEntity twittEntity){
+    public boolean recover(Exception ignoredE, TwittEntity twittEntity){
         log.error("Attempts to post twitt with tag={} are over", twittEntity.getTwittHeader());
         return false;
     }
@@ -113,44 +112,32 @@ public class TwittServiceImpl implements TwittService {
     public List<TwittEntity> formRandomTwittStack(Integer n) {
         log.info("Начало формирования случайного стека твитов. Требуется: {}", n);
 
-        List<UUID> candidateKeys = new ArrayList<>();
-        ScanOptions scanOptions = ScanOptions.scanOptions()
-                .match(randomTwittPrefix + "*")
-                .count(1000)
-                .build();
+        List<UUID> candidateKeys;
 
-        try (Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions)) {
-            while (cursor.hasNext()) {
-                String keyExtended = new String(cursor.next());
-                String key = keyExtended.substring(keyExtended.indexOf(":") + 1);
-
-                try {
-                    UUID uuid = UUID.fromString(key);
-                    candidateKeys.add(uuid);
-                } catch (IllegalArgumentException ex) {
-                    log.warn("Не удалось преобразовать ключ '{}' в UUID", key);
-                    continue;
-                }
-
-                if (candidateKeys.size() >= n) break;
-            }
-
-            log.info("Найдено {} подходящих ключей для твитов", candidateKeys.size());
-            if (candidateKeys.isEmpty()) {
-                log.warn("Список ключей для выборки твитов пуст. Вероятно, Redis не содержит подходящих записей.");
-            } else {
-                log.debug("Первые ключи для выборки: {}", candidateKeys.stream().limit(5).toList());
-            }
-
-        } catch (Exception e) {
-            log.error("Ошибка при сканировании Redis для выбора твитов: {}", e.getMessage(), e);
-            throw new RedisException("Ошибка при сканировании Redis");
-        }
+        candidateKeys = Objects.requireNonNull(redisTemplate.opsForSet().distinctRandomMembers(randomKeySetPrefix, n))
+                .stream()
+                .map(obj -> UUID.fromString((String) obj))
+                .toList();
 
         List<TwittEntity> result = cassandraTwittRepository.findAllByTwittIdIn(candidateKeys);
-        log.info("Извлечено {} твитов из twittRepository", result.size());
+        log.info("Извлечено {} рандомных твитов из twittRepository", result.size());
 
         return result;
+    }
+
+    @Override
+    public List<TwittEntity> formTrendTwittStack(Integer n) {
+        log.info("Начало формирования стека трендовых твитов. Требуется: {}", n);
+
+        List<UUID> candidateKeys = Objects.requireNonNull(redisTemplate.opsForSet().distinctRandomMembers(trendKeySetPrefix, n))
+                .stream()
+                .map(obj -> UUID.fromString((String) obj))
+                .toList();
+
+        List<TwittEntity> resultList = cassandraTwittRepository.findAllByTwittIdIn(candidateKeys);
+        log.info("Извлечено {} трендовых твитов из twittRepository", resultList.size());
+
+        return resultList;
     }
 
 }

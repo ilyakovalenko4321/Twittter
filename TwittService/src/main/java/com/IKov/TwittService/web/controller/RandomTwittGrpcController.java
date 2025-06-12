@@ -18,7 +18,7 @@ public class RandomTwittGrpcController extends GetTwittsImplBase {
 
 
     @Override
-    public void getTwitts(GetTwittsProto.GetTwittRandomRequest request,
+    public void getRandomTwitts(GetTwittsProto.GetTwittRandomRequest request,
                           StreamObserver<GetTwittsProto.GetTwittRandomReply> responseObserver) {
         log.info("gRPC request: get {} twitts", request.getTwittsNumber());
 
@@ -27,9 +27,30 @@ public class RandomTwittGrpcController extends GetTwittsImplBase {
             reply = randomTwittService.getRandomTwitts(request.getTwittsNumber());
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
-            log.info("gRPC response sent ({} twitts)", reply.getTwittCount());
+            log.info("gRPC response sent random twits ({} twitts)", reply.getTwittCount());
         } catch (Exception ex) {
-            log.error("Error in getTwitts", ex);
+            log.error("Error in getTwittsRandom", ex);
+            responseObserver.onError(
+                    io.grpc.Status.INTERNAL
+                            .withDescription("Internal error: " + ex.getMessage())
+                            .asRuntimeException());
+        }
+    }
+
+    @Override
+    public void getTrendTwitts(GetTwittsProto.GetTwitTrendRequest request,
+                               StreamObserver<GetTwittsProto.GetTwittTrendReply> responseObserver) {
+        log.info("gRPC request : get {} trend twitts", request.getTwittNumber());
+
+        GetTwittsProto.GetTwittTrendReply reply;
+
+        try{
+            reply = randomTwittService.getTrendTwitts(request.getTwittNumber());
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+            log.info("gRPC response sent trend twits ({} twitts)", reply.getTwittCount());
+        }catch (Exception ex){
+            log.error("Error in getTwittsTrend", ex);
             responseObserver.onError(
                     io.grpc.Status.INTERNAL
                             .withDescription("Internal error: " + ex.getMessage())

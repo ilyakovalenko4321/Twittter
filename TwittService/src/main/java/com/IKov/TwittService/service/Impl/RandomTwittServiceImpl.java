@@ -31,6 +31,18 @@ public class RandomTwittServiceImpl implements RandomTwittService {
         return replyBuilder.build();
     }
 
+    @Override
+    public GetTwittsProto.GetTwittTrendReply getTrendTwitts(Integer number) {
+        List<TwittEntity> twittEntityList = twittService.formTrendTwittStack(number);
+
+        GetTwittsProto.GetTwittTrendReply.Builder reply = GetTwittsProto.GetTwittTrendReply.newBuilder();
+        for (TwittEntity twittEntity : twittEntityList){
+            reply.addTwitt(mapToProto(twittEntity));
+        }
+
+        return reply.build();
+    }
+
     private GetTwittsProto.Twitt mapToProto(TwittEntity e) {
         return GetTwittsProto.Twitt.newBuilder()
                 .setUserTag(e.getUserTag())

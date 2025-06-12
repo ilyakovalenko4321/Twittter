@@ -6,4 +6,6 @@ public interface RandomTwittService {
 
     GetTwittsProto.GetTwittRandomReply getRandomTwitts(Integer number);
 
+    GetTwittsProto.GetTwittTrendReply getTrendTwitts(Integer number);
+
 }
