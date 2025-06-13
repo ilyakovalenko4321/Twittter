@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 public class TwittInteractingServiceImpl implements TwittInteractingService {
 
-    @Value("${trend-recommended-days}")
+    @Value("${configs.redis.trend-recommended-days}")
     private Integer trendRecommendedDays;
     @Value("${configs.redis.trend-twitt-prefix}")
     private String trendTwittPrefix;

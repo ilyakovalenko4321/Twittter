@@ -26,6 +26,7 @@ configs:
     trend-recommended-days: ${CONFIGURATION_REDIS_TREND_TIME}
     trend-twitt-prefix: ${CONFIGURATION_REDIS_TREND_PREFIX}
     trend-key-set-prefix: ${CONFIGURATION_REDIS_TREND_LIST_PREFIX}
+    random-key-set-prefix: ${CONFIGURATION_REDIS_RANDOM_LIST_PREFIX}
   local:
     trend_size: ${TWITT_SERVICE_TREND_SIZE}
 

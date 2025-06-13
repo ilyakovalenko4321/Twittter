@@ -34,15 +34,15 @@ public class GrpcClientServiceImpl implements GrpcClientService {
     public List<TwittEntity> getRandomTwitts() {
         log.info("Запрос случайных твитов: количество = {}", randomTwittsNumber);
 
-        GetTwittsProto.GetTwittRequest request = GetTwittsProto.GetTwittRequest.newBuilder()
+        GetTwittsProto.GetTwittRandomRequest request = GetTwittsProto.GetTwittRandomRequest.newBuilder()
                 .setTwittsNumber(randomTwittsNumber)
                 .build();
 
         log.debug("Сформирован gRPC-запрос: {}", request);
 
-        GetTwittsProto.GetTwittReply reply;
+        GetTwittsProto.GetTwittRandomReply reply;
         try {
-            reply = getTwittsBlockingStub.getTwitts(request);
+            reply = getTwittsBlockingStub.getRandomTwitts(request);
             log.info("Получен ответ от gRPC-сервиса: количество твитов = {}", reply.getTwitt(0).getTwittHeader());
         } catch (Exception e) {
             log.error("Ошибка при вызове gRPC-сервиса: {}", e.getMessage(), e);
