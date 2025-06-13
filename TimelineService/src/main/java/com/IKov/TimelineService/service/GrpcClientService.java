@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface GrpcClientService {
 
-    List<TwittEntity> formTimeline();
+    List<TwittEntity> formTimeline(String userTag);
 
     List<TwittEntity> getRandomTwitts();
 

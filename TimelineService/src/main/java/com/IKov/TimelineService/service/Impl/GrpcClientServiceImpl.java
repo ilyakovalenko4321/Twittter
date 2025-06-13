@@ -26,7 +26,7 @@ public class GrpcClientServiceImpl implements GrpcClientService {
     private Integer trendTwittsNumber;
 
     @Override
-    public List<TwittEntity> formTimeline() {
+    public List<TwittEntity> formTimeline(String userTag) {
         List<TwittEntity> twittEntities = new ArrayList<>();
         twittEntities.addAll(getRandomTwitts());
         twittEntities.addAll(getTrendTwitts());
