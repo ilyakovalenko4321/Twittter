@@ -1,19 +1,17 @@
 package com.IKov.TwittService.web.mapper;
 
-import com.IKov.TwittService.entity.TwittPost;
-import com.IKov.TwittService.web.dto.TwittPostDto;
+import com.IKov.TwittService.entity.twitt.TwittEntity;
+import com.IKov.TwittService.web.dto.TwittCreateRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
-public class TwittPostMapper {
+public class TwittDtoMapper {
 
-    public TwittPost toEntity(TwittPostDto dto) {
-        TwittPost entity = new TwittPost();
+    public TwittEntity toEntity(TwittCreateRequest dto) {
+        TwittEntity entity = new TwittEntity();
         entity.setUserTag(dto.getUserTag());
         entity.setTwittId(UUID.randomUUID());
         entity.setTwittHeader(dto.getTwittHeader());
@@ -23,8 +21,8 @@ public class TwittPostMapper {
         return entity;
     }
 
-    public TwittPostDto toDto(TwittPost entity) {
-        TwittPostDto dto = new TwittPostDto();
+    public TwittCreateRequest toDto(TwittEntity entity) {
+        TwittCreateRequest dto = new TwittCreateRequest();
         dto.setTwittText(entity.getTwittText());
         dto.setTwittTags(entity.getTwittTags());
         return dto;

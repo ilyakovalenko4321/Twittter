@@ -6,15 +6,16 @@ option java_package = "com.IKov.TwittService";
 option java_outer_classname = "GetTwittsProto";
 
 service GetTwitts{
-  rpc GetTwitts (GetTwittRequest) returns (GetTwittReply);
+  rpc GetRandomTwitts (GetTwittRandomRequest) returns (GetTwittRandomReply);
+  rpc GetTrendTwitts (GetTwitTrendRequest) returns (GetTwittTrendReply);
   rpc GetTwittsGraph (GetTwittGraphRequest) returns (GetTwittGraphReply);
 }
 
-message GetTwittRequest{
+message GetTwittRandomRequest{
   int32 twittsNumber = 1;
 }
 
-message GetTwittReply{
+message GetTwittRandomReply{
   repeated Twitt twitt = 1;
 }
 
@@ -24,6 +25,14 @@ message GetTwittGraphRequest{
 }
 
 message GetTwittGraphReply{
+  repeated Twitt twitt = 1;
+}
+
+message GetTwitTrendRequest{
+  int32 twittNumber = 1;
+}
+
+message GetTwittTrendReply{
   repeated Twitt twitt = 1;
 }
 

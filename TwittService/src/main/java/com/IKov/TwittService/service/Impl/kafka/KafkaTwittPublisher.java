@@ -1,4 +1,4 @@
-package com.IKov.TwittService.service.Impl;
+package com.IKov.TwittService.service.Impl.kafka;
 
 
 import com.IKov.TwittService.service.TwittKafkaSender;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class TwittKafkaSenderImpl implements TwittKafkaSender {
+public class KafkaTwittPublisher implements TwittKafkaSender {
 
     private final reactor.kafka.sender.KafkaSender<String, Object> kafkaSender;
 

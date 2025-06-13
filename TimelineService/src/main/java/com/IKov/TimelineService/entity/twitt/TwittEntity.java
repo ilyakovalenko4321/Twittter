@@ -1,4 +1,4 @@
-package com.IKov.TimelineService.entity;
+package com.IKov.TimelineService.entity.twitt;
 
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class TwittPost {
+public class TwittEntity {
 
     @Transient
     private String userTag;

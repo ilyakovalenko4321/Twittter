@@ -1,13 +1,12 @@
 package com.IKov.TwittService.web.dto;
 
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class TwittPostDto {
+public class TwittCreateRequest {
 
     private String userTag;
     @Size(max = 60, message = "Header too long")

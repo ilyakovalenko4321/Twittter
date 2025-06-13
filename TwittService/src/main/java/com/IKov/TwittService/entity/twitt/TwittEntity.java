@@ -1,9 +1,7 @@
-package com.IKov.TwittService.entity;
+package com.IKov.TwittService.entity.twitt;
 
 
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.cassandra.core.cql.Ordering;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
@@ -15,9 +13,8 @@ import java.util.UUID;
 
 @Data
 @Table("twitts")
-public class TwittPost {
-
-    @Transient
+public class TwittEntity {
+    @Column("user_tag")
     private String userTag;
     @PrimaryKeyColumn(name = "twitt_id", type = PrimaryKeyType.PARTITIONED)
     private UUID twittId;

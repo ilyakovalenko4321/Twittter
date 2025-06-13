@@ -14,3 +14,4 @@ server:
 config:
   grpc:
     random-twitts-number: ${CONFIGURATION_RANDOM_TWITT_NUMBER}
+    trend-twitts-number: ${CONFIGURATION_TREND_TWITT_NUMBER}

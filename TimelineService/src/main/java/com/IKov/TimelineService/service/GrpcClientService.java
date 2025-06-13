@@ -1,14 +1,15 @@
 package com.IKov.TimelineService.service;
 
-import com.IKov.TimelineService.GetTwittsProto;
-import com.IKov.TimelineService.entity.TwittPost;
+import com.IKov.TimelineService.entity.twitt.TwittEntity;
 
 import java.util.List;
 
 public interface GrpcClientService {
 
-    List<TwittPost> formTimeline();
+    List<TwittEntity> formTimeline();
 
-    List<TwittPost> getRandomTwitts();
+    List<TwittEntity> getRandomTwitts();
+
+    List<TwittEntity> getTrendTwitts();
 
 }
