@@ -29,13 +29,8 @@ public class TwittInteractingServiceImpl implements TwittInteractingService {
 
     @Override
     public boolean twittInteractingHandling(TwittInteractingDto twittInteractingDto) {
-        //ToDo: завершить путь изменения актуальности.
-        //ToDo: сделать ежедневное обновление актуальности в зависимости от времени
-        //ToDo: Ежедневно пополнять и изменять список "актуальных постов"
         //ToDo: В Graph не забыть сделать список "актуальных людей" - постят с регулярностью больше 1 раза в неделю для поддержания развития новеньких
-        //ToDo: Создать gRPC сервер "трендовых" постов
-        // Завести scheduling обновление списка трендовых
-        //Переписать хранение трендов на ZSET
+        //ToDo: Переписать хранение трендов на ZSET
 
         String key = trendTwittPrefix + twittInteractingDto.getId();
 
