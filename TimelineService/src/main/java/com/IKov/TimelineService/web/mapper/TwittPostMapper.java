@@ -12,7 +12,13 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class TwittPostMapper {
-    public List<TwittEntity> toDomainList(GetTwittsProto.GetTwittRandomReply reply) {
+    public List<TwittEntity> toDomainListRandom(GetTwittsProto.GetTwittRandomReply reply) {
+        return reply.getTwittList().stream()
+                .map(TwittPostMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    public List<TwittEntity> toDomainListTrend(GetTwittsProto.GetTwittTrendReply reply) {
         return reply.getTwittList().stream()
                 .map(TwittPostMapper::toDomain)
                 .collect(Collectors.toList());

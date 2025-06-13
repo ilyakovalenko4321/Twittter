@@ -30,7 +30,7 @@ public class TrendSetterImpl implements TrendSetter {
     private Integer trendLimit;
 
     @Override
-    @Scheduled(cron = "0 0 1 * * *") // каждый день в 01:00
+    @Scheduled(cron = "1 * * * * *") // каждый день в 01:00
     public void modifyTrendList() {
         List<Map.Entry<UUID, Double>> topEntries = scanAndCollectTopEntries(trendLimit);
         saveTopTrends(topEntries);

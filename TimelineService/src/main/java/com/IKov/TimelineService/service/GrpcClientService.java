@@ -10,4 +10,6 @@ public interface GrpcClientService {
 
     List<TwittEntity> getRandomTwitts();
 
+    List<TwittEntity> getTrendTwitts();
+
 }
