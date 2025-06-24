@@ -31,5 +31,19 @@ spring:
           starttls:
             enable: true
 
+  kafka:
+    indexes:
+      subscribition: ${KAFKA_USER_SUBSCRIBE}
+      user-topic: ${KAFKA_USER_TOPIC}
+      twitt-to-users: ${KAFKA_TWITT_TO_USERS}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+  cassandra:
+    contact-points: ${CASSANDRA_CONTACT_POINT}
+    port: ${CASSANDRA_PORT}
+    keyspace-name: ${CASSANDRA_KEY_SPACE}
+    local-datacenter: ${CASSANDRA_LOCAL_DATACENTER}
+    schema-action: create_if_not_exists
+
 server:
   port: 8001

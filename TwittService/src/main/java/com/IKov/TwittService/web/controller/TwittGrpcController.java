@@ -12,7 +12,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @GrpcService
 @RequiredArgsConstructor
 @Slf4j
-public class RandomTwittGrpcController extends GetTwittsImplBase {
+public class TwittGrpcController extends GetTwittsImplBase {
 
     private final RandomTwittService randomTwittService;
 
